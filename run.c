@@ -112,7 +112,15 @@ PyObject *run(code_object *cobj, PyObject *glob_name, PyObject *global_nvalue[],
             cobj->varref[operand] = pop();
             ip = ip + 3;
             break;
+        case BINARY_SUBSCR:
+            temp1 = pop();
+            temp2 = pop();
+            temp3 = ALOperation(temp2, temp1, c);
+            push(temp3);
+            ip = ip + 1;
+            break;
         default:
+            fprintf(stderr,"%x opcode not supported", c);
             if (c < 90)
                 ip = ip + 1;
             else

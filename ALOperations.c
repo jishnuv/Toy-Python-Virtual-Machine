@@ -153,6 +153,21 @@ PyObject *ALOperation(PyObject *op1, PyObject *op2, int operation)
             	strcat(op, op1->data.s);
             result->data.s = op;
             break;
+         case BINARY_SUBSCR:
+            op = (char *)malloc(sizeof(char)+1);
+            op = (op1->data.s) + op2->data.i;
+            op[1] = '\0';
+            result->data.s = op;
+            break;
+        default:
+            fprintf(stderr,"Unknown operation\n");
+            break;
+        }
+    } else if (type1 == TYPE_TUPLE && type2 == TYPE_INT) {
+        switch (operation) {
+         case BINARY_SUBSCR:
+            result = op1->data.tple+op2->data.i;
+            break;
         default:
             fprintf(stderr,"Unknown operation\n");
             break;
@@ -218,6 +233,7 @@ PyObject *compare_op(int operation)
 
 void print(PyObject *obj)
 {
+    int i;
     switch (obj->type) {
     case TYPE_INT:
         printf("%d", obj->data.i);
@@ -236,6 +252,15 @@ void print(PyObject *obj)
     case TYPE_FALSE:
         printf("False");
         break;
+    case TYPE_TUPLE:
+    	printf("(");
+    	for(i = 0;i<(obj->size)-1;i++) {
+    		print(obj->data.tple+i);
+    		printf(", ");
+    	}
+    	print(obj->data.tple+i);
+    	printf(")");
+    	break;
     default:
         printf(" cannot print \n");
         break;
