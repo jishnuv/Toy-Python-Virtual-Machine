@@ -1,11 +1,13 @@
 #include<stdio.h>
 #include<stdlib.h>
+#include<string.h>
 #include<stdbool.h>
 #include "PyVm.h"
 
 PyObject *ALOperation(PyObject *op1, PyObject *op2, int operation)
 {
-    int type1, type2;
+    int type1, type2, i;
+    char *op;
     type1 = op1->type;
     type2 = op2->type;
     PyObject *result = (PyObject *) malloc(sizeof (PyObject));
@@ -25,7 +27,7 @@ PyObject *ALOperation(PyObject *op1, PyObject *op2, int operation)
         case BINARY_DIVIDE:
             if (op2->data.i == 0) {
                 result->type = TYPE_NONE;
-                printf("Divide by zero !\n");
+                fprintf(stderr,"Divide by zero !\n");
                 break;
             }
             result->data.i = op1->data.i / op2->data.i;
@@ -33,13 +35,13 @@ PyObject *ALOperation(PyObject *op1, PyObject *op2, int operation)
         case BINARY_MODULO:
             if (op2->data.i == 0) {
                 result->type = TYPE_NONE;
-                printf("Divide by zero !\n");
+                fprintf(stderr,"Divide by zero !\n");
                 break;
             }
             result->data.i = (op1->data.i) % (op2->data.i);
             break;
         default:
-            printf("Unknown operation\n");
+            fprintf(stderr,"Unknown operation\n");
             break;
         }
     } else if (type1 == TYPE_INT && type2 == TYPE_BINARY_FLOAT) {
@@ -57,13 +59,13 @@ PyObject *ALOperation(PyObject *op1, PyObject *op2, int operation)
         case BINARY_DIVIDE:
             if (op2->data.f == 0.0) {
                 result->type = TYPE_NONE;
-                printf("Divide by zero !\n");
+                fprintf(stderr,"Divide by zero !\n");
                 break;
             }
             result->data.f = (float) op1->data.i / op2->data.f;
             break;
         default:
-            printf("Unknown operation\n");
+            fprintf(stderr,"Unknown operation\n");
             break;
         }
     } else if (type1 == TYPE_BINARY_FLOAT && type2 == TYPE_INT) {
@@ -81,13 +83,13 @@ PyObject *ALOperation(PyObject *op1, PyObject *op2, int operation)
         case BINARY_DIVIDE:
             if (op2->data.i == 0) {
                 result->type = TYPE_NONE;
-                printf("Divide by zero !\n");
+                fprintf(stderr,"Divide by zero !\n");
                 break;
             }
             result->data.f = (float) op1->data.f / op2->data.i;
             break;
         default:
-            printf("Unknown operation\n");
+            fprintf(stderr,"Unknown operation\n");
             break;
         }
     } else if (type1 == TYPE_BINARY_FLOAT && type2 == TYPE_BINARY_FLOAT) {
@@ -105,17 +107,58 @@ PyObject *ALOperation(PyObject *op1, PyObject *op2, int operation)
         case BINARY_DIVIDE:
             if (op2->data.f == 0) {
                 result->type = TYPE_NONE;
-                printf("Divide by zero !\n");
+                fprintf(stderr,"Divide by zero !\n");
                 break;
             }
             result->data.f = (float) op1->data.f / op2->data.f;
             break;
         default:
-            printf("Unknown operation\n");
+            fprintf(stderr,"Unknown operation\n");
+            break;
+        }
+    } else if ((type1 == TYPE_STRING || type1 == TYPE_INTERNED || type1 == TYPE_STRINGREF) && (type2 == TYPE_STRING || type2 == TYPE_INTERNED || type2 == TYPE_STRINGREF)) {
+        result->type = TYPE_STRING;
+        switch (operation) {
+        case BINARY_ADD:
+            op = (char *)malloc((op1->size + op2->size)*sizeof(char)+1);
+            strcpy(op, op1->data.s);
+            strcat(op, op2->data.s);
+            result->data.s = op;
+            break;
+        default:
+            fprintf(stderr,"Unknown operation\n");
+            break;
+        }
+    } else if (type1 == TYPE_INT && (type2 == TYPE_STRING || type2 == TYPE_INTERNED || type2 == TYPE_STRINGREF)) {
+        result->type = TYPE_STRING;
+        switch (operation) {
+        case BINARY_MULTIPLY:
+            op = (char *)malloc((op1->data.i)*(op2->size)*sizeof(char)+1);
+            strcpy(op, op2->data.s);
+            for(i = 1;i<op1->data.i;i++)
+            	strcat(op, op2->data.s);
+            result->data.s = op;
+            break;
+        default:
+            fprintf(stderr,"Unknown operation\n");
+            break;
+        }
+    } else if ((type1 == TYPE_STRING || type1 == TYPE_INTERNED || type1 == TYPE_STRINGREF) && type2 == TYPE_INT) {
+        result->type = TYPE_STRING;
+        switch (operation) {
+        case BINARY_MULTIPLY:
+            op = (char *)malloc((op2->data.i)*(op1->size)*sizeof(char)+1);
+            strcpy(op, op1->data.s);
+            for(i = 1;i<op2->data.i;i++)
+            	strcat(op, op1->data.s);
+            result->data.s = op;
+            break;
+        default:
+            fprintf(stderr,"Unknown operation\n");
             break;
         }
     } else
-        printf("Unknown operation\n");
+        fprintf(stderr,"Unknown operation\n");
 
     return result;
 }

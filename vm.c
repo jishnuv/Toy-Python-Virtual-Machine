@@ -19,7 +19,7 @@ int main(int argc, char** argv)
     fread(buffer, 8, 1, fp);
     c = getc(fp);
     if (c != 0x63) {
-        printf("Expected a code object !\n");
+        fprintf(stderr,"Expected a code object !\n");
         exit(1);
     }
     cobj = handle_code_object(fp);
@@ -39,7 +39,7 @@ code_object *handle_code_object(FILE *fp)
     code->flags = r_long(fp);
     c = getc(fp);
     if (c != 0x73) {
-        printf("Expected a string object !\n");
+        fprintf(stderr, "Expected a string object !\n");
         exit(1);
     }
     code->code_size = r_long(fp);
@@ -48,35 +48,35 @@ code_object *handle_code_object(FILE *fp)
 
     c = getc(fp);
     if (c != 0x28) {
-        printf("Expected a tuple object !\n");
+        fprintf(stderr,"Expected a tuple object !\n");
         exit(1);
     }
     code->constant = get_tuple(fp, &code->n_const);
 
     c = getc(fp);
     if (c != 0x28) {
-        printf("Expected a tuple object !\n");
+        fprintf(stderr,"Expected a tuple object !\n");
         exit(1);
     }
     code->names = get_tuple(fp, &code->n_name);
 
     c = getc(fp);
     if (c != 0x28) {
-        printf("Expecting a tuple object !\n");
+        fprintf(stderr,"Expecting a tuple object !\n");
         exit(1);
     }
     code->varnames = get_tuple(fp, &code->n_varname);
 
     c = getc(fp);
     if (c != 0x28) {
-        printf("Expected a tuple object !\n");
+        fprintf(stderr,"Expected a tuple object !\n");
         exit(1);
     }
     code->freevars = get_tuple(fp, &code->n_freevar);
 
     c = getc(fp);
     if (c != 0x28) {
-        printf("Expected a tuple object !\n");
+        fprintf(stderr,"Expected a tuple object !\n");
         exit(1);
     }
     code->cellvars = get_tuple(fp, &code->n_cellvar);
