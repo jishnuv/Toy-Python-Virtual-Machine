@@ -14,7 +14,7 @@ PyObject *run(code_object *cobj, PyObject *glob_name, PyObject *global_nvalue[],
     while (ip < cobj->code_size) {
 
         c = *(cobj->co_code + ip);
-        // printf("c = %d %x \n",c,c);
+        //printf("c = %d %x \n",c,c);
         switch (c) {
         case LOAD_CONST:
             operand = get_operand(cobj->co_code + ip);
@@ -120,7 +120,7 @@ PyObject *run(code_object *cobj, PyObject *glob_name, PyObject *global_nvalue[],
             ip = ip + 1;
             break;
         default:
-            fprintf(stderr,"%x opcode not supported", c);
+            //fprintf(stderr,"%x opcode not supported", c);
             if (c < 90)
                 ip = ip + 1;
             else
